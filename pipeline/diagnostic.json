@@ -1,0 +1,22 @@
+{
+    "now": "2022-05-10T20:43:48.948Z",
+    "perfNow": 27714,
+    "diagnosticCorrelation": "004f9bee-bcf3-43a3-a716-efeede17761b",
+    "source": "DownloadSupportFiles",
+    "environment": {
+        "productName": "a365",
+        "buildVersion": "22.0426.04",
+        "environmentType": 9,
+        "resourceName": "alexsynapse00001",
+        "resourceRegion": "southcentralus",
+        "resourceGroup": "alexgroup",
+        "subscriptionId": "3667e41b-81d3-482d-bfbd-5016bfc59067",
+        "sessionId": "Zkqp3",
+        "operationId": "b/7ms",
+        "gitType": "live"
+    },
+    "additionalInfo": {
+        "selectedResource": "BronzeToGold",
+        "selectedResourceType": "pipeline"
+    }
+}

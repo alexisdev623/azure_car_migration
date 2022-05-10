@@ -1,0 +1,190 @@
+{
+    "name": "BronzeToGold",
+    "properties": {
+        "activities": [
+            {
+                "name": "ForEach",
+                "type": "ForEach",
+                "dependsOn": [
+                    {
+                        "activity": "GetMetadata",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "userProperties": [],
+                "typeProperties": {
+                    "items": {
+                        "value": "@activity('GetMetadata').output.childItems",
+                        "type": "Expression"
+                    },
+                    "activities": [
+                        {
+                            "name": "BronzeToSilver",
+                            "type": "SynapseNotebook",
+                            "dependsOn": [],
+                            "policy": {
+                                "timeout": "7.00:00:00",
+                                "retry": 0,
+                                "retryIntervalInSeconds": 30,
+                                "secureOutput": false,
+                                "secureInput": false
+                            },
+                            "userProperties": [],
+                            "typeProperties": {
+                                "notebook": {
+                                    "referenceName": "BronzeToSilver",
+                                    "type": "NotebookReference"
+                                },
+                                "parameters": {
+                                    "name": {
+                                        "value": {
+                                            "value": "@item().name",
+                                            "type": "Expression"
+                                        },
+                                        "type": "string"
+                                    }
+                                },
+                                "snapshot": true,
+                                "sparkPool": {
+                                    "referenceName": "sparkgroup",
+                                    "type": "BigDataPoolReference"
+                                }
+                            }
+                        },
+                        {
+                            "name": "BorrarArchivoMensual",
+                            "type": "Delete",
+                            "dependsOn": [
+                                {
+                                    "activity": "SilverToGold",
+                                    "dependencyConditions": [
+                                        "Succeeded"
+                                    ]
+                                }
+                            ],
+                            "policy": {
+                                "timeout": "7.00:00:00",
+                                "retry": 0,
+                                "retryIntervalInSeconds": 30,
+                                "secureOutput": false,
+                                "secureInput": false
+                            },
+                            "userProperties": [],
+                            "typeProperties": {
+                                "dataset": {
+                                    "referenceName": "DelimitedText2",
+                                    "type": "DatasetReference"
+                                },
+                                "logStorageSettings": {
+                                    "linkedServiceName": {
+                                        "referenceName": "AzureBlobStorage1",
+                                        "type": "LinkedServiceReference"
+                                    },
+                                    "path": "input/data_mensual"
+                                },
+                                "enableLogging": true,
+                                "storeSettings": {
+                                    "type": "AzureBlobFSReadSettings",
+                                    "recursive": true,
+                                    "wildcardFileName": {
+                                        "value": "@{item().name}",
+                                        "type": "Expression"
+                                    },
+                                    "enablePartitionDiscovery": false
+                                }
+                            }
+                        },
+                        {
+                            "name": "SilverToGold",
+                            "type": "SynapseNotebook",
+                            "dependsOn": [
+                                {
+                                    "activity": "BronzeToSilver",
+                                    "dependencyConditions": [
+                                        "Succeeded"
+                                    ]
+                                }
+                            ],
+                            "policy": {
+                                "timeout": "7.00:00:00",
+                                "retry": 0,
+                                "retryIntervalInSeconds": 30,
+                                "secureOutput": false,
+                                "secureInput": false
+                            },
+                            "userProperties": [],
+                            "typeProperties": {
+                                "notebook": {
+                                    "referenceName": "SilverToGold",
+                                    "type": "NotebookReference"
+                                },
+                                "parameters": {
+                                    "name": {
+                                        "value": {
+                                            "value": "@item().name",
+                                            "type": "Expression"
+                                        },
+                                        "type": "string"
+                                    }
+                                },
+                                "snapshot": true,
+                                "sparkPool": {
+                                    "referenceName": "sparkgroup",
+                                    "type": "BigDataPoolReference"
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "GetMetadata",
+                "type": "GetMetadata",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "dataset": {
+                        "referenceName": "DelimitedText2",
+                        "type": "DatasetReference"
+                    },
+                    "fieldList": [
+                        "itemName",
+                        "childItems"
+                    ],
+                    "storeSettings": {
+                        "type": "AzureBlobFSReadSettings",
+                        "recursive": true,
+                        "enablePartitionDiscovery": false
+                    },
+                    "formatSettings": {
+                        "type": "DelimitedTextReadSettings"
+                    }
+                }
+            }
+        ],
+        "variables": {
+            "Output": {
+                "type": "String"
+            },
+            "lista": {
+                "type": "Array",
+                "defaultValue": [
+                    "202101",
+                    "202102"
+                ]
+            }
+        },
+        "annotations": [],
+        "lastPublishTime": "2022-05-10T01:57:50Z"
+    },
+    "type": "Microsoft.Synapse/workspaces/pipelines"
+}
