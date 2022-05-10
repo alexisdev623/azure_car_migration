@@ -16,4 +16,9 @@ Se requiere su análisis usando las herramientas de Azure.
 
 Para esta solución se parte de la aquitectura de las 3 zonas: Bronze, Silver y Gold.
 
+Para la homologación de los nombres de la comuna/region, se puede consultar la siguiente API. https://apis.digital.gob.cl/dpa/
+
+Nombre de las columnas PLACA;MARCA;MODELO;AÑO;ID_CLIENTE;COMUNA;REGION;SEXO;ACTIVIDAD;VALORVEHICULO;FEC_TRANSFE RENCIA;COLOR2;EDAD;VIGENCIA
+
+
 ![alt text](https://docs.microsoft.com/es-ES/azure/architecture/solution-ideas/media/ingest-etl-and-stream-processing-with-azure-databricks.png)
