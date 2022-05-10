@@ -1,0 +1,231 @@
+{
+    "name": "SilverToGold",
+    "properties": {
+        "nbformat": 4,
+        "nbformat_minor": 2,
+        "bigDataPool": {
+            "referenceName": "sparkgroup",
+            "type": "BigDataPoolReference"
+        },
+        "sessionProperties": {
+            "driverMemory": "56g",
+            "driverCores": 8,
+            "executorMemory": "56g",
+            "executorCores": 8,
+            "numExecutors": 2,
+            "conf": {
+                "spark.dynamicAllocation.enabled": "false",
+                "spark.dynamicAllocation.minExecutors": "2",
+                "spark.dynamicAllocation.maxExecutors": "2",
+                "spark.autotune.trackingId": "1dd1515a-3de3-441a-ac24-8527efb63f55"
+            }
+        },
+        "metadata": {
+            "saveOutput": true,
+            "enableDebugMode": false,
+            "kernelspec": {
+                "name": "synapse_pyspark",
+                "display_name": "Synapse PySpark"
+            },
+            "language_info": {
+                "name": "python"
+            },
+            "a365ComputeOptions": {
+                "id": "/subscriptions/3667e41b-81d3-482d-bfbd-5016bfc59067/resourceGroups/alexgroup/providers/Microsoft.Synapse/workspaces/alexsynapse00001/bigDataPools/sparkgroup",
+                "name": "sparkgroup",
+                "type": "Spark",
+                "endpoint": "https://alexsynapse00001.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/sparkgroup",
+                "auth": {
+                    "type": "AAD",
+                    "authResource": "https://dev.azuresynapse.net"
+                },
+                "sparkVersion": "3.1",
+                "nodeCount": 10,
+                "cores": 8,
+                "memory": 56,
+                "extraHeader": null
+            },
+            "sessionKeepAliveTimeout": 30
+        },
+        "cells": [
+            {
+                "cell_type": "code",
+                "metadata": {
+                    "jupyter": {
+                        "source_hidden": false,
+                        "outputs_hidden": false
+                    },
+                    "nteract": {
+                        "transient": {
+                            "deleting": false
+                        }
+                    }
+                },
+                "source": [
+                    "spark.conf.set(\"spark.sql.sources.partitionOverwriteMode\",\"dynamic\")"
+                ],
+                "attachments": null,
+                "outputs": [],
+                "execution_count": 31
+            },
+            {
+                "cell_type": "code",
+                "metadata": {
+                    "jupyter": {
+                        "source_hidden": false,
+                        "outputs_hidden": false
+                    },
+                    "nteract": {
+                        "transient": {
+                            "deleting": false
+                        }
+                    }
+                },
+                "source": [
+                    "from notebookutils import mssparkutils\n",
+                    "from pyspark.sql.functions import lit, col, when\n",
+                    "from pyspark.sql.types import StringType,BooleanType,DateType, IntegerType"
+                ],
+                "attachments": null,
+                "outputs": [],
+                "execution_count": 25
+            },
+            {
+                "cell_type": "code",
+                "metadata": {
+                    "jupyter": {
+                        "source_hidden": false,
+                        "outputs_hidden": false
+                    },
+                    "nteract": {
+                        "transient": {
+                            "deleting": false
+                        }
+                    }
+                },
+                "source": [
+                    "año = name[0:4]\n",
+                    "mes = name[4:6]"
+                ],
+                "attachments": null,
+                "outputs": [],
+                "execution_count": 4
+            },
+            {
+                "cell_type": "code",
+                "metadata": {
+                    "jupyter": {
+                        "source_hidden": false,
+                        "outputs_hidden": false
+                    },
+                    "nteract": {
+                        "transient": {
+                            "deleting": false
+                        }
+                    }
+                },
+                "source": [
+                    "account_name = \"alexstorage0003\"\n",
+                    "container_name = \"datalake\"\n",
+                    "relative_path_in = f\"silver/car_database/año={año}\"\n",
+                    "relative_path_out = \"gold/car_database\"\n",
+                    "\n",
+                    "adls_path_in = 'abfss://%s@%s.dfs.core.windows.net/%s'%(container_name, account_name, relative_path_in)\n",
+                    "adls_path_output = 'abfss://%s@%s.dfs.core.windows.net/%s'%(container_name, account_name, relative_path_out)"
+                ],
+                "attachments": null,
+                "outputs": [],
+                "execution_count": 5
+            },
+            {
+                "cell_type": "code",
+                "metadata": {
+                    "jupyter": {
+                        "source_hidden": false,
+                        "outputs_hidden": false
+                    },
+                    "nteract": {
+                        "transient": {
+                            "deleting": false
+                        }
+                    }
+                },
+                "source": [
+                    "dataframe = spark.read.format(\"avro\").load(adls_path_in)"
+                ],
+                "attachments": null,
+                "outputs": [],
+                "execution_count": 23
+            },
+            {
+                "cell_type": "code",
+                "metadata": {
+                    "jupyter": {
+                        "source_hidden": false,
+                        "outputs_hidden": false
+                    },
+                    "nteract": {
+                        "transient": {
+                            "deleting": false
+                        }
+                    }
+                },
+                "source": [
+                    "dataframe = dataframe.select(col(\"placa\"), \\\n",
+                    "                    when(col(\"marca\").isin(['SUZUKI', 'MAZDA', 'RENAULT', 'HAVAL', 'GWM', 'GREAT WALL MOTORS', 'GREAT WALL MOTOR', 'CHANGAN', 'JAC']),\\\n",
+                    "                    \"DERCO\").otherwise(col(\"marca\")).alias(\"marca\"), \\\n",
+                    "                    col(\"modelo\"), col(\"id_cliente\").cast(IntegerType()), col(\"comuna\"), col(\"region\"), col(\"sexo\"), col(\"actividad\"), \\\n",
+                    "                    col(\"valor_vehiculo\").cast(IntegerType()), col(\"fecha_transferencia\").cast(IntegerType()),\\\n",
+                    "                    col(\"color\"), col(\"edad\"), col(\"vigencia\"), col(\"mes\"),  lit(f\"{año}\").cast(IntegerType()).alias(\"año\"))"
+                ],
+                "attachments": null,
+                "outputs": [],
+                "execution_count": 28
+            },
+            {
+                "cell_type": "code",
+                "metadata": {
+                    "jupyter": {
+                        "source_hidden": false,
+                        "outputs_hidden": false
+                    },
+                    "nteract": {
+                        "transient": {
+                            "deleting": false
+                        }
+                    }
+                },
+                "source": [
+                    "dataframe.printSchema()"
+                ],
+                "attachments": null,
+                "outputs": [],
+                "execution_count": 29
+            },
+            {
+                "cell_type": "code",
+                "metadata": {
+                    "jupyter": {
+                        "source_hidden": false,
+                        "outputs_hidden": false
+                    },
+                    "nteract": {
+                        "transient": {
+                            "deleting": false
+                        }
+                    }
+                },
+                "source": [
+                    "dataframe.write\\\n",
+                    "    .mode('overwrite')\\\n",
+                    "    .format(\"parquet\")\\\n",
+                    "    .partitionBy('año', 'mes')\\\n",
+                    "    .save(adls_path_output)"
+                ],
+                "attachments": null,
+                "outputs": [],
+                "execution_count": 32
+            }
+        ]
+    }
+}

@@ -1,0 +1,6 @@
+selected resource name:		BronzeToGold
+selected resource type:		pipeline
+área de trabajo name:			alexsynapse00001
+área de trabajo location:		southcentralus
+subscription id:		3667e41b-81d3-482d-bfbd-5016bfc59067
+time of download (UTC):		Tue, 10 May 2022 20:43:48 GMT
