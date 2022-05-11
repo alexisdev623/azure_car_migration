@@ -22,3 +22,8 @@ Nombre de las columnas PLACA;MARCA;MODELO;AÑO;ID_CLIENTE;COMUNA;REGION;SEXO;ACT
 
 
 ![alt text](https://docs.microsoft.com/es-ES/azure/architecture/solution-ideas/media/ingest-etl-and-stream-processing-with-azure-databricks.png)
+
+
+VIDEOS:
+
+https://youtube.com/playlist?list=PL8O4jSANXmdU9I74zMMiTsg7aH1DPP0Fd
